@@ -1,8 +1,12 @@
 # Contador de Palabras
 
+Alumno: Francisco Viñas
+
+Padrón: 103207
+
 ## Paso 0
 #### a. Capturas de pantalla de la ejecución del aplicativo (con y sin Valgrind).
-![Captura Hola Mundo](imgs/paso0.png)
+![Captura Hola Mundo](paso0.png)
 
 #### b. ¿Para qué sirve Valgrind? ¿Cuáles son sus opciones más comunes?
 
@@ -71,3 +75,8 @@ Un programa puede tomar como entrada estandar a la salida estandar de otro progr
 ~~~
 $ ./programa1 | ./programa2
 ~~~
+
+## Paso 1: SERCOM - Errores de generación y normas de programación
+
+
+
