@@ -1,15 +1,8 @@
----
-title: TP0 Taller de programación I
-author: Francisco Viñas
----
-
-<!-- pandoc markdown.md --pdf-engine=wkhtmltopdf -o markdown.pdf -->
-
 # Contador de Palabras
 
 ## Paso 0
 #### a. Capturas de pantalla de la ejecución del aplicativo (con y sin Valgrind).
-![Captura Hola Mundo](paso0.png)
+![Captura Hola Mundo](imgs/paso0.png)
 
 #### b. ¿Para qué sirve Valgrind? ¿Cuáles son sus opciones más comunes?
 
