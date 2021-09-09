@@ -170,4 +170,87 @@ Hay 5 errores correspondientes al proceso de compilación. Estos errores se debe
 
 El sistema no reportó ningún WARNING porque estamos usando el flag -Werror, por lo tanto todos los WARNINGS son considerados errores.
 
+## Paso 2: SERCOM - Errores de generación 2
 
+#### a. Describa en breves palabras las correcciones realizadas respecto de la versión anterior.
+
+Haciendo uso del comando diff podemos ver las modificaciones realizadas:
+
+~~~
+diff paso1_main.c paso2_main.c || diff paso1_wordscounter.c paso2_wordscounter.c || diff paso1_wordscounter.h paso2_wordscounter.h
+~~~
+
+Las modificaciones fueron:
+
+* Se incluye la libreria paso2_wordscounter.h en el archivo con el programa principal
+* Se reemplaza el srtcpy por memcpy
+* Se solucionan todos los problemas de estilo mencionados anteriormente
+
+#### b. Captura de pantalla indicando la correcta ejecución de verificación de normas de programación.
+
+~~~
+Done processing /task/student//source_unsafe/paso2_wordscounter.h
+Done processing /task/student//source_unsafe/paso2_main.c
+Done processing /task/student//source_unsafe/paso2_wordscounter.c
+~~~
+
+#### c. Captura de pantalla indicando los errores de generación del ejecutable. Explicar cada uno e indicar si se trata de errores del compilador o del linker.
+
+~~~
+Descomprimiendo el codigo 'source_unsafe.zip'...
+Archive:  source_unsafe.zip
+  inflating: source_unsafe/README.md
+  inflating: source_unsafe/paso0.png
+  inflating: source_unsafe/paso2_main.c
+  inflating: source_unsafe/paso2_wordscounter.c
+  inflating: source_unsafe/paso2_wordscounter.h
+Compilando el codigo...
+cc -Wall -Werror -pedantic -pedantic-errors -O3 -ggdb -DDEBUG -fno-inline -D _POSIX_C_SOURCE=200809L -Dwrapsocks=1 -std=c11 -o paso2_wordscounter.o -c paso2_wordscounter.c
+In file included from paso2_wordscounter.c:1:
+paso2_wordscounter.h:7:5: error: unknown type name 'size_t'
+    7 |     size_t words;
+      |     ^~~~~~
+paso2_wordscounter.h:20:1: error: unknown type name 'size_t'
+   20 | size_t wordscounter_get_words(wordscounter_t *self);
+      | ^~~~~~
+paso2_wordscounter.h:1:1: note: 'size_t' is defined in header '<stddef.h>'; did you forget to '#include <stddef.h>'?
+  +++ |+#include <stddef.h>
+    1 | #ifndef __WORDSCOUNTER_H__
+paso2_wordscounter.h:25:49: error: unknown type name 'FILE'
+   25 | void wordscounter_process(wordscounter_t *self, FILE *text_file);
+      |                                                 ^~~~
+paso2_wordscounter.h:1:1: note: 'FILE' is defined in header '<stdio.h>'; did you forget to '#include <stdio.h>'?
+  +++ |+#include <stdio.h>
+    1 | #ifndef __WORDSCOUNTER_H__
+paso2_wordscounter.c:17:8: error: conflicting types for 'wordscounter_get_words'
+   17 | size_t wordscounter_get_words(wordscounter_t *self) {
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+In file included from paso2_wordscounter.c:1:
+paso2_wordscounter.h:20:8: note: previous declaration of 'wordscounter_get_words' was here
+   20 | size_t wordscounter_get_words(wordscounter_t *self);
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+paso2_wordscounter.c: In function 'wordscounter_next_state':
+paso2_wordscounter.c:30:25: error: implicit declaration of function 'malloc' [-Wimplicit-function-declaration]
+   30 |     char* delim_words = malloc(7 * sizeof(char));
+      |                         ^~~~~~
+paso2_wordscounter.c:30:25: error: incompatible implicit declaration of built-in function 'malloc' [-Werror]
+paso2_wordscounter.c:5:1: note: include '<stdlib.h>' or provide a declaration of 'malloc'
+    4 | #include <stdbool.h>
+  +++ |+#include <stdlib.h>
+    5 |
+cc1: all warnings being treated as errors
+make: *** [/task/student/MakefileTP0:145: paso2_wordscounter.o] Error 1
+
+real    0m0.036s
+user    0m0.024s
+sys     0m0.008s
+[Error] Fallo la compilacion del codigo en 'source_unsafe.zip'. Codigo de error 2
+~~~
+
+Los errores que se muestran son errores de compilación y son consecuencia de hacer uso de la función malloc y de los tipos size_t y FILE sin antes incluir las librerias que corresponden. Las librerias necesarias son:
+
+~~~c
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+~~~
