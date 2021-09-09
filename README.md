@@ -571,3 +571,17 @@ Starting program: /home/fran/docs/fiuba/taller-de-programacion/codigo/ejercicios
 * **quit**: Salir de gdb.
 
 El debugger no se detuvo en el breakpoint de la *línea 45: self->words++;* porque después de ejecutar los comandos *list wordscounter_next_state* y *list* el debugger se encontraba en la línea 51. El punto de quiebre se estableció en una línea por la cual el debugger nunca volvió a pasar.
+
+## Paso 6: SERCOM - Entrega exitosa
+
+#### a. Describa en breves palabras las correcciones realizadas respecto de la versión anterior.
+
+* Se modifica el codigo de retorno de ERROR. Antes era -1 y ahora es 1.
+* Para definir los caracteres separadores se utliza la directiva #define. Antes se usaba un const char*
+* Se corrigió la función *wordscounter_next_state* para solucionar el problema que ocurría en el paso anterior con el archivo de entrada input_single_word.txt
+
+#### b. Captura de pantalla mostrando todas las entregas realizadas, tanto exitosas como fallidas.
+
+
+
+#### c. Captura de pantalla mostrando la ejecución de la prueba ‘Single Word’ de forma local con las distintas variantes indicadas.
