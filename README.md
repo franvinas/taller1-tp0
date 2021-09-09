@@ -254,3 +254,54 @@ Los errores que se muestran son errores de compilación y son consecuencia de ha
 #include <stdio.h>
 #include <stdlib.h>
 ~~~
+
+## Paso 3: SERCOM - Errores de generación 3
+
+#### a. Describa en breves palabras las correcciones realizadas respecto de la versión anterior.
+
+Nuevamente, haciendo uso del comando diff podemos ver las modificaciones realizadas:
+
+~~~
+diff paso2_main.c paso3_main.c || diff paso2_wordscounter.c paso3_wordscounter.c || diff paso2_wordscounter.h paso3_wordscounter.h
+~~~
+
+Las únicas modificaciones que se aplicaron son las siguientes incluciones de librerías:
+
+~~~c
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+~~~
+
+#### b. Captura de pantalla indicando los errores de generación del ejecutable. Explicar cada uno e indicar si se trata de errores del compilador o del linker.
+
+~~~
+Descomprimiendo el codigo 'source_unsafe.zip'...
+Archive:  source_unsafe.zip
+  inflating: source_unsafe/README.md
+  inflating: source_unsafe/paso0.png
+  inflating: source_unsafe/paso3_main.c
+  inflating: source_unsafe/paso3_wordscounter.c
+  inflating: source_unsafe/paso3_wordscounter.h
+Compilando el codigo...
+cc -Wall -Werror -pedantic -pedantic-errors -O3 -ggdb -DDEBUG -fno-inline -D _POSIX_C_SOURCE=200809L -Dwrapsocks=1 -std=c11 -o paso3_wordscounter.o -c paso3_wordscounter.c
+cc -Wall -Werror -pedantic -pedantic-errors -O3 -ggdb -DDEBUG -fno-inline -D _POSIX_C_SOURCE=200809L -Dwrapsocks=1 -std=c11 -o paso3_main.o -c paso3_main.c
+cc paso3_wordscounter.o paso3_main.o -o tp -lm -Wl,--wrap=send -Wl,--wrap=recv
+/usr/bin/ld: paso3_main.o: in function `main':
+/task/student/source_unsafe/paso3_main.c:27: undefined reference to `wordscounter_destroy'
+collect2: error: ld returned 1 exit status
+make: *** [/task/student/MakefileTP0:136: tp] Error 1
+
+real    0m0.130s
+user    0m0.088s
+sys     0m0.036s
+[Error] Fallo la compilacion del codigo en 'source_unsafe.zip'. Codigo de error 2
+~~~
+
+Es decir, el único error es el siguiente:
+
+~~~
+paso3_main.c:27: undefined reference to `wordscounter_destroy'
+~~~
+
+Este es un error del linker y se debe a que la funcion wordscounter_destroy está declarada en paso3_wordscounter.h pero no se define en ninguno de los archivos.
