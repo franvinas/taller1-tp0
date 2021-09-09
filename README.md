@@ -582,6 +582,10 @@ El debugger no se detuvo en el breakpoint de la *línea 45: self->words++;* porq
 
 #### b. Captura de pantalla mostrando todas las entregas realizadas, tanto exitosas como fallidas.
 
+![Captura Paso 6b](paso6b1.png)
 
+![Captura Paso 6b](paso6b2.png)
 
 #### c. Captura de pantalla mostrando la ejecución de la prueba ‘Single Word’ de forma local con las distintas variantes indicadas.
+
+![Captura Paso 6c](paso6c.png)
