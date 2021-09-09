@@ -432,8 +432,142 @@ paso4_main.c:13:36: note: length computed here
 cc1: all warnings being treated as errors
 ~~~
 
-Para solucionar este problema podríamos asignarle a filepath una longitud mayor y mantener la función memcpy.
+Para solucionar este problema podríamos asignarle a filepath una longitud mayor y mantener la función memcpy. Otra opción es llamar a la funcion fopen pasando como parametro directamente el string con el nombre del archivo. Esto es:
+
+~~~
+    input = fopen(argv[1], "r");
+~~~
 
 #### e. Explicar de qué se trata un segmentation fault y un buffer overflow.
 
 El error de segmentation fault ocurre cuando se quiere acceder a posiciones de memoria sin los permisos correspondientes para ello. Por otro lado, el error de buffer overflow ocurre cuando se quiere escribir sobre un buffer una cantidad de bytes mayor al tamaño del mismo.
+
+## Paso 5: SERCOM - Código de retorno y salida estándar
+
+#### a. Describa en breves palabras las correcciones realizadas respecto de la versión anterior.
+
+* Se quitaron las líneas donde se declaraba el buffer donde luego se copiaba el nombre del archivo. Esto se reemplazo por una sola linea que abre el archivo de la forma *input = fopen(argv[1], "r");*. Esto evita el problema que existía en el paso anterior con los nombres de archivos largos.
+* Ahora se cierran los archivos para evitar que queden esos bytes sin ser liberados.
+* Se modificó el método por el cual se define el arreglo con los caracteres separadores. Ahora se hace de forma más compacta en una sola línea.
+
+#### b. Describa el motivo por el que fallan las prueba ‘Invalid File’ y ‘Single Word’. ¿Qué información entrega SERCOM para identificar el error? Realice una captura de pantalla.
+
+La prueba 'Invalid File' falla porque el SERCOM espera que el programa retorne un 1 y esto no se cumple. El SERCOM nos dá esta información de la siguiente manera:
+
+~~~
+[=>] Comparando archivo_invalido/__return_code__...
+1c1
+< 255
+---
+> 1
+~~~
+
+En esta salida del SERCOM podemos ver que el código de retorno esperado es el 1 y el programa está retornando el -1 (en el SERCOM vemos el 255 pero es equivalente).
+
+Por otro lado, la prueba 'Single Word' falla en la salida del programa. El SERCOM nos comunica este error de la siguiente forma:
+
+~~~
+[=>] Comparando una_palabra/__stdout__...
+1c1
+< 0
+---
+> 1
+~~~
+
+El SERCOM espera que la salida del programa sea un 1 y el programa que se usa en este paso tiene como salida un 0.
+
+#### c. Captura de pantalla de la ejecución del comando hexdump. ¿Cuál es el último carácter del archivo input_single_word.txt?
+
+~~~
+00000000  77 6f 72 64                                       |word|
+00000004
+~~~
+
+El último caracter del archivo input_single_word.txt es que corresponde en la tabla ascii al valor hexadecimal 64. Este es el caracter 'd'.
+
+#### d. Captura de pantalla con el resultado de la ejecución con gdb. Explique brevemente los comandos utilizados en gdb. ¿Por qué motivo el debugger no se detuvo en el breakpoint de la *línea 45: self->words++;*?
+
+~~~
+GNU gdb (GDB) 10.2
+Copyright (C) 2021 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-pc-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./tp...
+(gdb) info functions
+All defined functions:
+
+File paso5_main.c:
+9:	int main(int, char **);
+
+File paso5_wordscounter.c:
+14:	void wordscounter_create(wordscounter_t *);
+18:	void wordscounter_destroy(wordscounter_t *);
+22:	size_t wordscounter_get_words(wordscounter_t *);
+26:	void wordscounter_process(wordscounter_t *, FILE *);
+34:	static char wordscounter_next_state(wordscounter_t *, char, char);
+
+Non-debugging symbols:
+0x0000000000001000  _init
+0x0000000000001030  fclose@plt
+0x0000000000001040  __stack_chk_fail@plt
+0x0000000000001050  strchr@plt
+0x0000000000001060  printf@plt
+0x0000000000001070  fopen@plt
+0x0000000000001080  getc@plt
+0x0000000000001140  _start
+0x0000000000001170  deregister_tm_clones
+0x00000000000011a0  register_tm_clones
+0x00000000000011e0  __do_global_dtors_aux
+0x0000000000001230  frame_dummy
+0x0000000000001320  __libc_csu_init
+0x0000000000001390  __libc_csu_fini
+0x0000000000001398  _fini
+(gdb) list wordscounter_next_state
+33	
+34	static char wordscounter_next_state(wordscounter_t *self, char state, char c) {
+35	    const char* delim_words = " ,.;:\n";
+36	
+37	    char next_state = state;
+38	    if (c == EOF) {
+39	        next_state = STATE_FINISHED;
+40	    } else if (state == STATE_WAITING_WORD) {
+41	        if (strchr(delim_words, c) == NULL)
+42	            next_state = STATE_IN_WORD;
+(gdb) list
+43	    } else if (state == STATE_IN_WORD) {
+44	        if (strchr(delim_words, c) != NULL) {
+45	            self->words++;
+46	            next_state = STATE_WAITING_WORD;
+47	        }
+48	    }
+49	    return next_state;
+50	}
+51	
+(gdb) break 45
+Breakpoint 1 at 0x12a0: file paso5_wordscounter.c, line 45.
+(gdb) run input_single_word.txt
+Starting program: /home/fran/docs/fiuba/taller-de-programacion/codigo/ejercicios/ej0/pasos/paso5/tp input_single_word.txt
+0
+[Inferior 1 (process 367911) exited normally]
+(gdb) quit
+~~~
+
+* **info functions**: Este comando imprime una lista con las declaraciones de todas las funciones declaradas en los modulos con los que se compiló.
+* **list wordscounter_next_state**: Imprime lineas de código donde se define la función wordscounter_next_state.
+* **list**: Imprime las lineas de código que están debajo de las impresas con el último comando.
+* **break 45**: Establece un punto de quiebre en la línea 45 del archivo que esta siendo actualmente procesado.
+* **run input_single_word.txt**: corre el programa con input_single_word.txt como argumento.
+* **quit**: Salir de gdb.
+
+El debugger no se detuvo en el breakpoint de la *línea 45: self->words++;* porque después de ejecutar los comandos *list wordscounter_next_state* y *list* el debugger se encontraba en la línea 51. El punto de quiebre se estableció en una línea por la cual el debugger nunca volvió a pasar.
