@@ -589,3 +589,99 @@ El debugger no se detuvo en el breakpoint de la *línea 45: self->words++;* porq
 #### c. Captura de pantalla mostrando la ejecución de la prueba ‘Single Word’ de forma local con las distintas variantes indicadas.
 
 ![Captura Paso 6c](paso6c.png)
+
+## Paso 8: Netcat, ss y tiburoncin
+
+Ejecuto en una consola el siguiente comando:
+~~~
+nc -l -p 9081
+~~~
+ 
+* El flag "-l" le indica a netcat que debe estar en modo escucha (listen mode)
+* El flag "-p" indica el puerto
+
+En otra consola ejecuto:
+
+~~~
+ss -tuplan
+~~~
+
+En la captura de pantalla que se muestra a continuación se ve la salida del comando. Está resaltada la línea que corresponde a netcat
+
+![Captura Paso 8b](paso8b.png)
+
+En una tercer consola ejecuto:
+
+~~~
+nc 127.0.0.1 9081
+~~~
+
+'netcat' se queda bloqueado esperando un input. Podemos escribir un mensaje y al presionar enter lo veremos en la primera consola.
+
+Ejecuto nuevamente `ss -tuplan`. Ahora en la salida se ven 2 'netcat'. En la siguiente imagen se pueden ver estos dos resaltados.
+
+![Captura Paso 8d](paso8d.png)
+
+Cierro ambos netcats. En una consola abro un nuevo netcat:
+
+~~~
+nc -l -p 9091
+~~~
+
+En otra consola lanzo **tiburoncin** (https://github.com/eldipa/tiburoncin):
+
+~~~
+tiburoncin -o -A 127.0.0.1:9095 -B 127.0.0.1:9091
+~~~
+
+Tiburoncin se conecta al primer netcat y queda "en espera" a que otro programa se conecte a él. En una tercera consola lanzo un segundo netcat:
+
+~~~
+nc 127.0.0.1 9095
+~~~
+
+En el segundo netcat escribo el mensaje "Hola Mundo" y presiono enter. El mensaje es enviado al otro netcat.  Luego, en el primer netcat escribo el mensaje "Otro mensaje", presiono enter y veo el mensaje en el segundo netcat.
+
+![Captura Paso 8 mensajes](paso8-mensajes.png)
+
+Por otro lado, en la consola que esta corriendo tiburoncin se puede ver lo siguiente:
+
+![Captura Paso 8 tiburoncin](paso8-tiburoncin.png)
+
+Las primera tres lineas corresponden a información sobre la conexión. Nos indica donde espera poder establecer ambas conexiones y si pudo efectivamente conectarse o si está en espera. Además, nos indica que el tamaño de ambos buffers es de 2048 bytes cada uno. Luego, por cada mensaje se muestran cuatro líneas con la siguiente información:
+
+* La primera linea indica quien es el emisor y quien es el receptor del mensaje. Además de la cantidad de bytes correspondientes a dicho mensaje.
+* La segunda linea muestra la salida de hexdump (con el flag -C) con el mensaje como argumento
+* Las otras dos lineas mustran información sobre la sincronizacion entre las dos conexiones. Si A le manda un mensaje de 4 bytes a B, entonces B estará 4 bytes por detrás de la sincronización hasta que le llegue el mensaje.
+
+Las últimas cuatro líneas que se ven en la imagen anterior se imprimen una vez que se cierra la conexión. Primero imprime ""A -> B flow shutdown" porque cerré ese netcat manualmente. Luego se cerró automaticamente el otro y por eso se imprime "B -> A flow shutdown".
+
+Tiburoncin es un *man in the middle* porque se ubica entre los dos extremos de la conexión y simplemente imprime los mensajes que se envían de uno a otro. Tiburoncin no modifica los mensajes, por lo tanto los extremos de la comunicación pueden actuar como si tiburoncin no estuviese en el medio.
+
+Una vez cerrada la conexión podemos ver que tiburoncin crea dos archivos: *AtoB.dump* y *BtoA.dump*. En el primero se guardan los datos enviados desde A y en segundos los enviados desde B. Los contenidos de estos archivos para el proceso descripto en este paso son:
+
+* AtoB.dump
+
+~~~
+486f6c61204d756e646f0a
+~~~
+
+* BtoA.dump
+
+~~~
+4f74726f206d656e73616a650a
+~~~
+
+Para recuperar los mensaje podemos hacer uso del siguiente comando:
+
+~~~
+$ xxd -p -c 16 -r AtoB.dump | hexdump -C
+00000000  48 6f 6c 61 20 4d 75 6e  64 6f 0a                 |Hola Mundo.|
+0000000b
+~~~
+
+~~~
+$ xxd -p -c 16 -r BtoA.dump | hexdump -C
+00000000  4f 74 72 6f 20 6d 65 6e  73 61 6a 65 0a           |Otro mensaje.|
+0000000d
+~~~
