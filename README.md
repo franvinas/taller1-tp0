@@ -4,6 +4,8 @@ Alumno: Francisco Viñas
 
 Padrón: 103207
 
+Link al repositorio: https://github.com/franvinas/taller1-tp0
+
 ## Paso 0
 #### a. Capturas de pantalla de la ejecución del aplicativo (con y sin Valgrind).
 ![Captura Hola Mundo](paso0.png)
@@ -12,11 +14,22 @@ Padrón: 103207
 
 Valgrind es una herramienta que sirve para detectar si hay memoria que fue alocada pero nunca se liberó. Al ejecutar un programa con valgrind vamos a obtener una salida con un **HEAP SUMMARY**. Esta sección de la salida de valgrind nos indica la cantidad de *allocs* y la cantidad de *frees* que se realizar durante la ejecución del programa. 
 
+Algunas de las opciones más comunes son:
+
+* --tool=memcheck
+    Corre valgrind con la herramienta que se pasa como parametro. La opción por defecto es memcheck, otras opciones son cachegrind, calgrind, helgrind, etc.
+* --leak-check=full
+    Con este flag podemos ver una devolución más detalla donde se muestre individualmente cada perdida de memoria. También se podría elegir una versión resumida.
+* --show-reachable=yes
+    Con este flag valgring muestra las perdidas de memoria de todos los tipos.
+* --track-fds=yes
+    Con este flag valgrind muestra una lista con los descriptores de archivos que quedaron abiertos una vez que el programa finalizó.
+
 #### c. ¿Qué representa sizeof()? ¿Cuál sería el valor de salida de sizeof(char) y sizeof(int)?
 
 La función *sizeof()* sirve para obtener la cantidad de bytes alocados para una variable o tipo de dato. La salida de esta función para un mismo tipo de dato puede variar según la arquitectura.
 
-El valor de sizeof(char) es 1 y el de sizeof(char) es 4.
+El valor de sizeof(char) es 1 y el de sizeof(int) es 4.
 
 #### d. ¿El sizeof() de una struct de C es igual a la suma del sizeof() de cada uno sus elementos? Justifique mediante un ejemplo.
 
@@ -32,9 +45,9 @@ struct ejemplo {
 } ejemplo_t;
 ~~~
 
-La suma de los sizeof de cada campo es 1 + 4 + 1 = 6. Sin embargo, si calculamos el sizeof de ejemplo_t obtenemos el valor 12. Esto se debe a que los campos se alinean a 4 bytes para que el acceso sea más rápido.
+La suma de los sizeof de cada campo es 1 + 4 + 1 = 6. Sin embargo, si calculamos el sizeof de ejemplo_t obtenemos el valor 12. Esto se debe a que los campos se alinean a 4 bytes para que el acceso sea más rápido. En particular para esta estructura se va a usar un byte para la variable a seguido de 3 bytes de padding, luego para la variable b se usan 4 bytes (como es de esperarse para una variable de tipo int) y por último la variable va a ocupar un byte seguido por 3 bytes de padding. Teniendo en cuenta esto, podemos calcular el tamaño del struct como la sumatoria de los tamaños de las variables y los paddings. Esto es:
 
-
+    1 + 3 + 4 + 1 + 3 = 12
 
 #### e. Investigar la existencia de los archivos estándar: STDIN, STDOUT, STDERR. Explicar brevemente su uso y cómo redirigirlos en caso de ser necesario (caracteres > y <) y como conectar la salida estándar de un proceso a la entrada estándar de otro con un pipe (carácter | ).
 
@@ -46,7 +59,7 @@ Cuando se invoca la función main, ya se encuentran disponibles los tres canales
 
 * **stderr**: Error estandar (canal por el cual se envían los mensajes de error en caso de que exista alguno)
 
-Es posible que un programa reciba el contenido de un archivo a través de la entrada estandar. Para esto se hace uso del caractér **<**. Por ejemplo, si tenemos un archivo entrada.txt podemos hacer que el programa lo lea como entrada estandar de la siguiente forma:
+Es posible que un programa reciba el contenido de un archivo a través de la entrada estandar. Para esto se hace uso del caractér **<**. Por ejemplo, si tenemos un archivo *entrada.txt* podemos hacer que el programa lo lea como entrada estandar de la siguiente forma:
 
 ~~~
 $ ./programa < entrada.txt
@@ -70,7 +83,7 @@ Para escribir los errores en un archivo e imprimir por pantalla la salida estand
 $ ./programa 2> errores.txt
 ~~~
 
-Un programa puede tomar como entrada estandar a la salida estandar de otro programa haciendo uso de los pipes (caractér |). Por ejemplo, si tenemos un programa llamado programa1 que tiene una salida y queremos que esta salida sea recibida por un programa llamado programa2 como entrada estandar, luego podemos realilzar lo siguiente:
+Un programa puede tomar como entrada estandar a la salida estandar de otro programa haciendo uso de los pipes (caractér |). Por ejemplo, si tenemos un programa llamado *programa1* que tiene una salida y queremos que esta salida sea recibida por un programa llamado *programa2* como entrada estandar, luego podemos realilzar lo siguiente:
 
 ~~~
 $ ./programa1 | ./programa2
@@ -116,17 +129,17 @@ Los siguientes dos errores (4 y 5) se deben a que hay un salto de linea despues 
     } else if (state == STATE_IN_WORD) {
 ~~~
 
-El sexto error igual al primero pero ahora sobre un if en lugar de un while. Se soluciona agregando un espacio despues de la palabra reservada if
+El sexto error es igual al primero pero ahora sobre un if en lugar de un while. Se soluciona agregando un espacio despues de la palabra reservada if.
 
-El último problema de estilo del archivo paso1_wordscounter.c se debe a que se dejo un espacio antes del punto y coma. Lo correcto es:
+El último problema de estilo del archivo *paso1_wordscounter.c* se debe a que se dejo un espacio antes del punto y coma. Lo correcto es:
 
 ~~~c
     return next_state;
 ~~~
 
-En el archivo paso1_main.c tenemos otros 3 problemas de estilo. El primero se debe a que se hace uso de la función strcpy en lugar de snprintf. Reemplazando la primera por la segunda se soluciona este problema. Los otros dos problemas dentro de este archivo se deben a que hay un salto de linea despues del caractér { y antes del else. 
+En el archivo *paso1_main.c* tenemos otros 3 problemas de estilo. El primero se debe a que se hace uso de la función strcpy en lugar de snprintf. Reemplazando la primera por la segunda se soluciona este problema. Los otros dos problemas dentro de este archivo se deben a que hay un salto de linea despues del caractér { y antes del else. 
 
-El último problema de estilo se encuentra en el archivo paso1_wordscounter.h. Hay una linea que tiene más de 80 caracteres. Esta linea corresponde a comentantario, para solucionar este problema podemos reescribir el comentario de forma tal que sea más corto o usar dos lineas.
+El último problema de estilo se encuentra en el archivo *paso1_wordscounter.h*. Hay una linea que tiene más de 80 caracteres. Esta línea corresponde a un comentario, para solucionar este problema podemos reescribir el comentario de forma tal que sea más corto o usar dos lineas.
 
 #### b. Captura de pantalla indicando los errores de generación del ejecutable. Explicar cada uno e indicar si se trata de errores del compilador o del linker.
 
@@ -164,7 +177,7 @@ sys     0m0.013s
 [Error] Fallo la compilacion del codigo en 'source_unsafe.zip'. Codigo de error 2
 ~~~
 
-Hay 5 errores correspondientes al proceso de compilación. Estos errores se deben a que no se hace el #include correspondiente a la librería paso1_wordscounter.h
+Hay 5 errores correspondientes al proceso de compilación. Estos errores se deben a que no se hace el #include correspondiente a la librería *paso1_wordscounter.h*
 
 #### c. ¿El sistema reportó algún WARNING? ¿Por qué?
 
@@ -182,7 +195,7 @@ diff paso1_main.c paso2_main.c || diff paso1_wordscounter.c paso2_wordscounter.c
 
 Las modificaciones fueron:
 
-* Se incluye la libreria paso2_wordscounter.h en el archivo con el programa principal
+* Se incluye la libreria *paso2_wordscounter.h* en el archivo con el programa principal
 * Se reemplaza el srtcpy por memcpy
 * Se solucionan todos los problemas de estilo mencionados anteriormente
 
@@ -247,7 +260,7 @@ sys     0m0.008s
 [Error] Fallo la compilacion del codigo en 'source_unsafe.zip'. Codigo de error 2
 ~~~
 
-Los errores que se muestran son errores de compilación y son consecuencia de hacer uso de la función malloc y de los tipos size_t y FILE sin antes incluir las librerias que corresponden. Las librerias necesarias son:
+Los errores que se muestran son errores de compilación y son consecuencia de hacer uso de la función malloc y de los tipos size_t y FILE sin antes incluir las librerias que corresponden. Para evitar este error se pueden realizar las siguientes incluciones:
 
 ~~~c
 #include <stddef.h>
@@ -304,7 +317,7 @@ Es decir, el único error es el siguiente:
 paso3_main.c:27: undefined reference to `wordscounter_destroy'
 ~~~
 
-Este es un error del linker y se debe a que la funcion wordscounter_destroy está declarada en paso3_wordscounter.h pero no se define en ninguno de los archivos.
+Este es un error del linker y se debe a que la funcion wordscounter_destroy está declarada en *paso3_wordscounter.h* pero no se define en ninguno de los archivos.
 
 ## Paso 4: SERCOM - Memory Leaks y Buffer Overflows
 
@@ -372,8 +385,8 @@ Se agregó la definición de la función wordscounter_destroy. Esta función deb
 ~~~
 
 Valgrind reporta los siguientes dos errores:
-* Hay 472 bytes que no fueron liberados que fueron alocados en la linea 14 del archivo paso4_main.c. En esta linea se abre el archivo entrada. Para liberar estos bytes hay que cerrar el archivo con la funcion fclose.
-* Hay 1505 bytes que fueron alocados en la línea 35 del archivo paso4_wordscounter.c a través de un malloc.
+* Hay 472 bytes no liberados que fueron alocados en la linea 14 del archivo *paso4_main.c*. En esta linea se abre el archivo entrada. Para liberar estos bytes hay que cerrar el archivo con la funcion fclose.
+* Hay 1505 bytes que fueron alocados en la línea 35 del archivo *paso4_wordscounter.c* a través de un malloc y nunca fueron liberados.
 
 #### c. Captura de pantalla del resultado de ejecución con Valgrind de la prueba ‘Long Filename’. Describir los errores reportados por Valgrind.
 
@@ -415,7 +428,7 @@ Valgrind reporta los siguientes dos errores:
 ==00:00:00:00.664 48== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
 ~~~
 
-Valgrind detecta un buffer overflow e indica que el problema se encuentra al invocar la función memcpy en la línea 13 del archivo paso4_main.c.
+Valgrind detecta un buffer overflow e indica que el problema se encuentra al invocar la función memcpy en la línea 13 del archivo *paso4_main.c*.
 
 #### d. ¿Podría solucionarse este error utilizando la función strncpy? ¿Qué hubiera ocurrido con la ejecución de la prueba?
 
@@ -483,7 +496,7 @@ El SERCOM espera que la salida del programa sea un 1 y el programa que se usa en
 00000004
 ~~~
 
-El último caracter del archivo input_single_word.txt es que corresponde en la tabla ascii al valor hexadecimal 64. Este es el caracter 'd'.
+El último caracter del archivo *input_single_word.txt* es que corresponde en la tabla ascii al valor hexadecimal 64. Este es el caracter 'd'.
 
 #### d. Captura de pantalla con el resultado de la ejecución con gdb. Explique brevemente los comandos utilizados en gdb. ¿Por qué motivo el debugger no se detuvo en el breakpoint de la *línea 45: self->words++;*?
 
@@ -567,7 +580,7 @@ Starting program: /home/fran/docs/fiuba/taller-de-programacion/codigo/ejercicios
 * **list wordscounter_next_state**: Imprime lineas de código donde se define la función wordscounter_next_state.
 * **list**: Imprime las lineas de código que están debajo de las impresas con el último comando.
 * **break 45**: Establece un punto de quiebre en la línea 45 del archivo que esta siendo actualmente procesado.
-* **run input_single_word.txt**: corre el programa con input_single_word.txt como argumento.
+* **run input_single_word.txt**: Corre el programa con input_single_word.txt como argumento.
 * **quit**: Salir de gdb.
 
 El debugger no se detuvo en el breakpoint de la *línea 45: self->words++;* porque después de ejecutar los comandos *list wordscounter_next_state* y *list* el debugger se encontraba en la línea 51. El punto de quiebre se estableció en una línea por la cual el debugger nunca volvió a pasar.
@@ -593,12 +606,13 @@ El debugger no se detuvo en el breakpoint de la *línea 45: self->words++;* porq
 ## Paso 8: Netcat, ss y tiburoncin
 
 Ejecuto en una consola el siguiente comando:
+
 ~~~
 nc -l -p 9081
 ~~~
  
 * El flag "-l" le indica a netcat que debe estar en modo escucha (listen mode)
-* El flag "-p" indica el puerto
+* El flag "-p" permite indicar el puerto
 
 En otra consola ejecuto:
 
@@ -618,7 +632,7 @@ nc 127.0.0.1 9081
 
 'netcat' se queda bloqueado esperando un input. Podemos escribir un mensaje y al presionar enter lo veremos en la primera consola.
 
-Ejecuto nuevamente `ss -tuplan`. Ahora en la salida se ven 2 'netcat'. En la siguiente imagen se pueden ver estos dos resaltados.
+Ejecuto nuevamente 'ss -tuplan'. Ahora en la salida se ven 2 'netcat'. En la siguiente imagen se pueden ver estos dos resaltados.
 
 ![Captura Paso 8d](paso8d.png)
 
@@ -640,11 +654,11 @@ Tiburoncin se conecta al primer netcat y queda "en espera" a que otro programa s
 nc 127.0.0.1 9095
 ~~~
 
-En el segundo netcat escribo el mensaje "Hola Mundo" y presiono enter. El mensaje es enviado al otro netcat.  Luego, en el primer netcat escribo el mensaje "Otro mensaje", presiono enter y veo el mensaje en el segundo netcat.
+En el segundo netcat escribo el mensaje "Hola Mundo" y presiono enter. El mensaje es enviado al otro netcat. Luego, en el primer netcat escribo el mensaje "Otro mensaje", presiono enter y veo el mensaje en el segundo netcat.
 
 ![Captura Paso 8 mensajes](paso8-mensajes.png)
 
-Por otro lado, en la consola que esta corriendo tiburoncin se puede ver lo siguiente:
+Por otro lado, en la consola que está corriendo tiburoncin se puede ver lo siguiente:
 
 ![Captura Paso 8 tiburoncin](paso8-tiburoncin.png)
 
@@ -652,7 +666,7 @@ Las primera tres lineas corresponden a información sobre la conexión. Nos indi
 
 * La primera linea indica quien es el emisor y quien es el receptor del mensaje. Además de la cantidad de bytes correspondientes a dicho mensaje.
 * La segunda linea muestra la salida de hexdump (con el flag -C) con el mensaje como argumento
-* Las otras dos lineas mustran información sobre la sincronizacion entre las dos conexiones. Si A le manda un mensaje de 4 bytes a B, entonces B estará 4 bytes por detrás de la sincronización hasta que le llegue el mensaje.
+* Las otras dos lineas mustran información sobre la sincronización entre los extremos de la conexión. Si A le manda un mensaje de 4 bytes a B, entonces B estará 4 bytes por detrás de la sincronización hasta que le llegue el mensaje.
 
 Las últimas cuatro líneas que se ven en la imagen anterior se imprimen una vez que se cierra la conexión. Primero imprime ""A -> B flow shutdown" porque cerré ese netcat manualmente. Luego se cerró automaticamente el otro y por eso se imprime "B -> A flow shutdown".
 
@@ -685,3 +699,7 @@ $ xxd -p -c 16 -r BtoA.dump | hexdump -C
 00000000  4f 74 72 6f 20 6d 65 6e  73 61 6a 65 0a           |Otro mensaje.|
 0000000d
 ~~~
+
+## Referencias
+
+* https://github.com/eldipa/tiburoncin
