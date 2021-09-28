@@ -27,7 +27,7 @@ Algunas de las opciones más comunes son:
 
 #### c. ¿Qué representa sizeof()? ¿Cuál sería el valor de salida de sizeof(char) y sizeof(int)?
 
-La función *sizeof()* sirve para obtener la cantidad de bytes alocados para una variable o tipo de dato. La salida de esta función para un mismo tipo de dato puede variar según la arquitectura.
+La función *sizeof()* sirve para obtener la cantidad de bytes alocados para una variable o tipo de dato. La salida de esta función para un mismo tipo de dato puede variar según la arquitectura y el compilador.
 
 El valor de sizeof(char) es 1 y el de sizeof(int) es 4.
 
@@ -323,7 +323,7 @@ Este es un error del linker y se debe a que la funcion wordscounter_destroy est�
 
 #### a. Describa en breves palabras las correcciones realizadas respecto de la versión anterior.
 
-Se agregó la definición de la función wordscounter_destroy. Esta función deberia liberar los bytes alocados y por ahora no hace nada, como consecuencia falla la ejecución con Valgrind.
+Se agregó la definición de la función wordscounter_destroy. Esta función deberia liberar los bytes alocados en el constructor (no sería correcto liberar memoria alocada por constructores de otros tdas) y por ahora no hace nada, como consecuencia falla la ejecución con Valgrind.
 
 #### b. Captura de pantalla del resultado de ejecución con Valgrind de la prueba ‘TDA’. Describir los errores reportados por Valgrind.
 
@@ -445,11 +445,13 @@ paso4_main.c:13:36: note: length computed here
 cc1: all warnings being treated as errors
 ~~~
 
-Para solucionar este problema podríamos asignarle a filepath una longitud mayor y mantener la función memcpy. Otra opción es llamar a la funcion fopen pasando como parametro directamente el string con el nombre del archivo. Esto es:
+Para solucionar este problema podríamos llamar a la funcion fopen pasando como parametro directamente el string con el nombre del archivo. Esto es:
 
 ~~~
     input = fopen(argv[1], "r");
 ~~~
+
+El problema de usar un buffer es que siempre puede haber un nombre de archivo mas largo que el buffer y el problema de overflow aparecería de todas formas.
 
 #### e. Explicar de qué se trata un segmentation fault y un buffer overflow.
 
@@ -583,7 +585,7 @@ Starting program: /home/fran/docs/fiuba/taller-de-programacion/codigo/ejercicios
 * **run input_single_word.txt**: Corre el programa con input_single_word.txt como argumento.
 * **quit**: Salir de gdb.
 
-El debugger no se detuvo en el breakpoint de la *línea 45: self->words++;* porque después de ejecutar los comandos *list wordscounter_next_state* y *list* el debugger se encontraba en la línea 51. El punto de quiebre se estableció en una línea por la cual el debugger nunca volvió a pasar.
+El debugger no se detuvo en el breakpoint de la *línea 45: self->words++;* porque después de ejecutar los comandos *list wordscounter_next_state* y *list* el debugger se encontraba en la línea 51. El punto de quiebre se estableció en la línea 45 y si seguimos la ejecución línea por línea vemos que el debugger nunca vuelve a pasar por esta línea por lo tanto no se detiene.
 
 ## Paso 6: SERCOM - Entrega exitosa
 
